@@ -8,7 +8,7 @@
 - **Course:** Backend Development Fundamentals
 - **Lab Number:** 01
 
-## Live Link
+ Live Link: https://backend-development-utrs.onrender.com/
 
 **Deployment URL:** Not deployed yet. The application is currently running locally at `http://localhost:3000`.
 

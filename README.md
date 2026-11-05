@@ -42,13 +42,23 @@ A full RESTful API implementation performing complete CRUD (Create, Read, Update
 
 ---
 
+### 📁 [Lab 03 – REST API, Query Parameters, Validation and Debugging](./lab-03/)
+An upgraded REST API featuring partial title search (`search_q`), whitelist-enforced sorting (`order_by`, `order`), safe pagination (`limit`, `offset`), price-range filtering (`min_price`, `max_price`), strict POST/PUT payload validation, standard HTTP status codes, and thorough debugging documentation.
+
+- **Directory:** [`lab-03/`](./lab-03/)
+- **Key Files:** `app.js`, `database.db`, `initDB.sql`, `package.json`, `README.md`
+- **Screenshots:** [`lab-03/screenshots/`](./lab-03/screenshots/)
+  - Postman verification captures for search, sorting, pagination, filtering, validation, and error states.
+
+---
+
 ## Laboratory Index
 
 | Lab Number | Lab Title | Status |
 |---|---|---|
 | Lab 1 | Node.js and Express Server | Completed |
 | Lab 2 | SQLite Database and CRUD Routes | Completed |
-| Lab 3 | To be added | Pending |
+| Lab 3 | REST API, Query Parameters, Validation & Debugging | Completed |
 | Lab 4 | To be added | Pending |
 | Lab 5 | To be added | Pending |
 | Lab 6 | To be added | Pending |
@@ -85,6 +95,17 @@ Backend-Development/
 │   │   ├── get-book-by-id.png
 │   │   ├── post-add-book.png
 │   │   └── put-update-book.png
+│   ├── .gitignore
+│   ├── README.md
+│   ├── app.js
+│   ├── database.db
+│   ├── initDB.sql
+│   ├── package.json
+│   └── package-lock.json
+│
+├── lab-03/                             # Lab 3: REST API, Query Parameters & Validation
+│   ├── screenshots/
+│   │   └── .gitkeep
 │   ├── .gitignore
 │   ├── README.md
 │   ├── app.js

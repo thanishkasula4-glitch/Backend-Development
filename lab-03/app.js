@@ -213,8 +213,13 @@ app.get("/books/:bookId", async (request, response, next) => {
 
 /**
  * Helper function to validate request body for POST and PUT
+ * Safely guards against undefined or non-object bodies to avoid destructuring errors
  */
 const validateBookPayload = (body) => {
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    return { valid: false, message: "Title is required" };
+  }
+
   const { title, author, price, pages } = body;
 
   // Title validation
@@ -261,7 +266,7 @@ app.post("/books", async (request, response, next) => {
       return response.status(400).json({ message: validation.message });
     }
 
-    const { title, author, price, pages } = request.body;
+    const { title, author, price, pages } = request.body || {};
 
     const addBookQuery = `
       INSERT INTO book (title, author, price, pages)
@@ -308,7 +313,7 @@ app.put("/books/:bookId", async (request, response, next) => {
       return response.status(400).json({ message: validation.message });
     }
 
-    const { title, author, price, pages } = request.body;
+    const { title, author, price, pages } = request.body || {};
 
     const updateBookQuery = `
       UPDATE book

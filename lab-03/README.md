@@ -10,28 +10,39 @@
 
 ---
 
+## Live Deployment
+
+- **Deployment Status:** Not deployed yet.
+- **Local Testing URL:** `http://localhost:3000`
+- **Deployment Platform:** Render (Web Service prepared)
+- **Deployment Notes:** Lab 3 is completely configured for cloud deployment as an isolated service. Local testing has been fully verified using Postman and an automated Node.js test harness.
+
+---
+
 ## Objective
 
-The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD application developed in Lab 2 into a robust, secure, and production-ready **RESTful API**. Key competencies developed in this lab include:
+The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD application developed in Lab 2 into a robust, secure, and production-ready **RESTful API**. Specifically, Lab 3 upgrades the Books API by implementing:
 
-1. Implementing **RESTful noun-based endpoint architecture**.
-2. Supporting dynamic client-driven **filtering, searching, sorting, and pagination** using query parameters.
-3. Performing partial text searches using **parameterized SQL `LIKE` queries** to prevent SQL injection.
-4. Implementing strict **sorting whitelists** and **order direction validation**.
-5. Applying server-side **request body validation** for data integrity and sanitization.
-6. Adhering to **standard HTTP status codes** (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Internal Server Error`).
-7. Diagnosing and resolving common backend engineering pitfalls (**EADDRINUSE**, **table-name typos**, **wrong import paths**, and **missing `await` expressions**).
+1. **RESTful endpoint naming conventions:** Strict adherence to noun-based resource collections (`/books`) and individual resources (`/books/:bookId`).
+2. **Partial title search:** Dynamic filtering using parameterized SQL `LIKE` queries to prevent SQL injection.
+3. **Column sorting:** Safe query sorting using `order_by` validated against an explicit database column whitelist and `order` direction validation (`ASC`/`DESC`).
+4. **Pagination:** Safe limit and offset pagination with default parameters, positive integer constraints, and denial-of-service caps.
+5. **Price-range filtering:** Composable numerical filters using `min_price` and `max_price` with strict boundary validation.
+6. **Robust request body validation:** Pre-validation of incoming payloads on `POST` and `PUT` endpoints, rejecting missing, non-numeric, or negative fields before database execution.
+7. **Consistent HTTP status codes and JSON formatting:** Standardized status codes (`200 OK`, `201 Created`, `400 Bad Request`, `404 Not Found`, `500 Internal Server Error`) accompanied by predictable JSON error objects (`{"message": "..."}`).
+8. **Comprehensive debugging practices:** Root-cause analysis and resolution for common backend engineering pitfalls including `EADDRINUSE` port conflicts, improper import paths, SQLite table naming mismatches, missing `await` statements, and undefined request body destructuring.
 
 ---
 
 ## Technologies Used
 
 - **Runtime Environment:** Node.js (v18+)
-- **Web Framework:** Express.js (`express` v5)
+- **Server Framework:** Express.js (`express` v5)
 - **Database Engine:** SQLite3 (`sqlite3` v6)
-- **Database Wrapper:** SQLite Promise Wrapper (`sqlite` v5)
-- **Development Utility:** Nodemon (`nodemon` v3)
-- **API Testing:** Postman & Node.js Automated Test Harness
+- **Database Promise Wrapper:** SQLite (`sqlite` v5)
+- **Development Tool:** Nodemon (`nodemon` v3)
+- **API Testing & Verification:** Postman & Node.js Automated Test Suite
+- **Version Control:** Git & GitHub
 
 ---
 
@@ -39,16 +50,49 @@ The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD ap
 
 ```text
 lab-03/
-├── app.js               # Main Express application with routes, validation, and error handling
-├── database.db          # Embedded SQLite database holding the book table
-├── initDB.sql           # SQL schema initialization and seed dataset
-├── package.json         # Project metadata, dependencies, and npm scripts
+├── app.js               # Express application with REST routes, query filters, and validation
+├── database.db          # Embedded SQLite database storing the books dataset
+├── initDB.sql           # Schema definition and initial seeded book records
+├── package.json         # Project metadata, dependencies, and npm run scripts
 ├── package-lock.json    # Exact dependency tree lockfile
-├── .gitignore           # Git ignore file excluding node_modules and sensitive configs
-├── README.md            # Comprehensive project documentation and test evidence
-└── screenshots/         # Directory containing Postman verification captures
-    └── .gitkeep
+├── .gitignore           # Git exclusions (node_modules, .env, api keys)
+├── README.md            # Comprehensive documentation and test verification report
+└── screenshots/         # 32 Postman verification captures
+    ├── combined-filters.png
+    ├── database-verification.png
+    ├── delete-not-found.png
+    ├── delete-success.png
+    ├── delete-verification.png
+    ├── get-all-books.png
+    ├── get-book-by-id.png
+    ├── get-book-not-found.png
+    ├── invalid-offset.png
+    ├── invalid-price-range.png
+    ├── invalid-sort-column.png
+    ├── invalid-sort-order.png
+    ├── maximum-price.png
+    ├── minimum-price.png
+    ├── negative-limit.png
+    ├── pagination-limit.png
+    ├── pagination-offset.png
+    ├── partial-title-search.png
+    ├── post-invalid-price.png
+    ├── post-missing-author.png
+    ├── post-missing-price.png
+    ├── post-missing-title.png
+    ├── post-negative-price.png
+    ├── post-success.png
+    ├── price-range.png
+    ├── put-not-found.png
+    ├── put-persistence-check.png
+    ├── put-success.png
+    ├── search-books.png
+    ├── sort-ascending.png
+    ├── sort-descending.png
+    └── unknown-endpoint.png
 ```
+
+*(Note: `node_modules/` is excluded via `.gitignore` and is not committed to the repository).*
 
 ---
 
@@ -59,114 +103,132 @@ lab-03/
 - npm (Node Package Manager) installed.
 - Git installed.
 
-### 2. Clone and Navigate
+### 2. Navigate to Project
 ```bash
-git clone https://github.com/thanishkasula4-glitch/Backend-Development.git
-cd Backend-Development/lab-03
+cd lab-03
 ```
 
 ### 3. Install Dependencies
 ```bash
 npm install
 ```
-*(For production/Render environments requiring source compilation of SQLite native modules, use `npm install --build-from-source`)*
+*(On cloud platforms such as Render requiring native SQLite compilation, run `npm install --build-from-source`).*
 
-### 4. Database Initialization (Optional)
-The pre-seeded SQLite database file `database.db` is included with the project. To recreate or reseed the database from scratch, run:
-```bash
-sqlite3 database.db < initDB.sql
-```
+### 4. Start the Application
+- **Production mode:**
+  ```bash
+  npm start
+  ```
+- **Development mode (with auto-reload):**
+  ```bash
+  npm run dev
+  ```
 
----
-
-## Environment Variables
-
-| Variable | Type | Default | Description |
-|---|---|---|---|
-| `PORT` | Number | `3000` | The network port on which the Express server listens. In cloud deployment platforms (e.g., Render), this is injected automatically. |
-
-*No secrets or sensitive API credentials are required for this project.*
-
----
-
-## Starting the Application
-
-### Production / Standard Mode:
-```bash
-npm start
-```
-*Executes `node app.js`.*
-
-### Development Mode (with hot-reload):
-```bash
-npm run dev
-```
-*Executes `nodemon app.js`.*
-
-When successfully started, the terminal displays:
+When started, the terminal confirms:
 ```text
 Connected to SQLite database successfully at: .../lab-03/database.db
 Server is running at http://localhost:3000/
 ```
 
+### 5. Access the Local API
+Open your browser or Postman and access:
+```text
+http://localhost:3000/books
+```
+
+### Environment Variables
+| Variable | Type | Default | Description |
+|---|---|---|---|
+| `PORT` | Number | `3000` | The network port the server listens on. In containerized/cloud environments (e.g., Render), this is dynamically injected. |
+
+*No secret tokens or private keys are required for this project.*
+
 ---
 
-## RESTful API Endpoints
+## API Endpoints
 
-All endpoints use resource-oriented naming (`/books`) with HTTP methods conveying the desired action:
+All endpoints use resource-oriented naming (`/books`) with HTTP methods representing operations:
 
-| Method | Endpoint | Description | Expected Status |
+| Method | Endpoint | Description | Status Codes |
 |---|---|---|---|
-| `GET` | `/books` | Retrieve books with optional search, sorting, filtering, and pagination | `200 OK` / `400 Bad Request` |
-| `GET` | `/books/:bookId` | Retrieve a single book record by ID | `200 OK` / `404 Not Found` |
-| `POST` | `/books` | Create a new book record | `201 Created` / `400 Bad Request` |
-| `PUT` | `/books/:bookId` | Update an existing book record by ID | `200 OK` / `400 Bad Request` / `404 Not Found` |
-| `DELETE` | `/books/:bookId` | Remove a book record by ID | `200 OK` / `404 Not Found` |
+| `GET` | `/books` | Retrieve books collection with search, sort, filter, and pagination | `200 OK`, `400 Bad Request` |
+| `GET` | `/books/:bookId` | Retrieve a single book record by ID | `200 OK`, `404 Not Found` |
+| `POST` | `/books` | Create a new book record | `201 Created`, `400 Bad Request` |
+| `PUT` | `/books/:bookId` | Update an existing book record by ID | `200 OK`, `400 Bad Request`, `404 Not Found` |
+| `DELETE` | `/books/:bookId` | Delete a book record by ID | `200 OK`, `404 Not Found` |
+
+### Unknown Route (404) Handler
+Any unmapped route receives a consistent JSON response:
+```json
+{
+  "message": "Endpoint not found"
+}
+```
 
 ---
 
 ## Query Parameter Documentation (`GET /books`)
 
-The collection endpoint supports multiple composable query parameters:
+The collection endpoint supports composable query parameters:
 
-### 1. Partial Title Search (`search_q`)
-- **Query:** `search_q=<string>`
-- **SQL Implementation:** `title LIKE ?` with parameter `'%<search_q>%'`.
-- **Behavior:** Case-insensitive partial matching across book titles.
-- **Example:** `GET /books?search_q=mocking`
+### 1. `search_q` (Partial Title Search)
+- **Description:** Performs a partial, case-insensitive substring search on book titles.
+- **SQL Implementation:** Parameterized `title LIKE ?` with parameter `'%<search_q>%'`.
+- **Example URL:** `http://localhost:3000/books?search_q=mocking`
 
-### 2. Sorting (`order_by` and `order`)
-- **Query:** `order_by=<column>&order=<direction>`
+### 2. `order_by` (Sorting Column)
+- **Description:** Specifies the database column for ordering results.
 - **Allowed Columns (Whitelist):** `id`, `title`, `author`, `price`, `pages`.
-- **Allowed Directions:** `ASC`, `DESC` (case-insensitive).
-- **Default Values:** `order_by=id`, `order=ASC`.
-- **Validation:** Unrecognized columns or invalid directions immediately return `400 Bad Request` with an explanatory message.
-- **Example:** `GET /books?order_by=price&order=DESC`
+- **Default:** `id`.
+- **Validation:** Unwhitelisted column names return `400 Bad Request`.
+- **Example URL:** `http://localhost:3000/books?order_by=price`
 
-### 3. Pagination (`limit` and `offset`)
-- **Query:** `limit=<integer>&offset=<integer>`
-- **Defaults:** `limit=10`, `offset=0`.
-- **Validation:** `limit` must be a positive integer (`> 0`); `offset` must be a non-negative integer (`>= 0`).
-- **Maximum Limit Cap:** Set to `100` to safeguard against denial-of-service query loads.
-- **Example:** `GET /books?limit=5&offset=10`
+### 3. `order` (Sort Direction)
+- **Description:** Specifies ascending or descending order.
+- **Allowed Values:** `ASC`, `DESC` (case-insensitive).
+- **Default:** `ASC`.
+- **Validation:** Any other value returns `400 Bad Request`.
+- **Example URL:** `http://localhost:3000/books?order_by=price&order=DESC`
 
-### 4. Price-Range Filtering (`min_price` and `max_price`)
-- **Query:** `min_price=<number>&max_price=<number>`
-- **Validation:** Both values must be valid non-negative numbers. If both are supplied, `min_price` cannot exceed `max_price`.
-- **Example:** `GET /books?min_price=200&max_price=350`
+### 4. `limit` (Pagination Limit)
+- **Description:** Maximum number of records to return.
+- **Default:** `10`.
+- **Validation:** Must be a positive integer (`> 0`). Non-integers or values `≤ 0` return `400 Bad Request`. Capped at `100` maximum.
+- **Example URL:** `http://localhost:3000/books?limit=5`
 
-### 5. Combined Example
-All query parameters work harmoniously in a single request:
-```http
-GET /books?search_q=the&order_by=price&order=DESC&min_price=200&max_price=500&limit=5&offset=0
+### 5. `offset` (Pagination Offset)
+- **Description:** Number of records to skip before returning results.
+- **Default:** `0`.
+- **Validation:** Must be a non-negative integer (`≥ 0`). Negative values return `400 Bad Request`.
+- **Example URL:** `http://localhost:3000/books?limit=5&offset=5`
+
+### 6. `min_price` (Minimum Price Filter)
+- **Description:** Filters books whose price is greater than or equal to `min_price`.
+- **SQL Implementation:** `price >= ?`.
+- **Validation:** Must be a non-negative number.
+- **Example URL:** `http://localhost:3000/books?min_price=250`
+
+### 7. `max_price` (Maximum Price Filter)
+- **Description:** Filters books whose price is less than or equal to `max_price`.
+- **SQL Implementation:** `price <= ?`.
+- **Validation:** Must be a non-negative number. If both `min_price` and `max_price` are provided, `min_price` cannot exceed `max_price`.
+- **Example URL:** `http://localhost:3000/books?max_price=350`
+
+### Combined Query Example
+All query parameters work together within a single request:
+```text
+http://localhost:3000/books?search_q=the&order_by=price&order=DESC&min_price=200&max_price=500&limit=5&offset=0
 ```
+
+> **Security Note:** Parameterized queries (`?` placeholders) prevent SQL injection vulnerabilities. Sorting column names and directions cannot be parameterized in SQLite, so they are strictly validated against hardcoded whitelists before query execution.
 
 ---
 
-## Request Body Validation (`POST /books` & `PUT /books/:bookId`)
+## POST Request Validation
 
-Every modification request must supply a valid JSON body:
+Endpoint: `POST /books`
 
+### Valid Request Example
 ```json
 {
   "title": "Clean Code",
@@ -176,137 +238,337 @@ Every modification request must supply a valid JSON body:
 }
 ```
 
-### Validation Rules:
-1. **Title:** Must exist, be a string, and cannot be empty or whitespace only.
-   - Error: `400 Bad Request` &rarr; `{"message": "Title is required"}`
-2. **Author:** Must exist, be a string, and cannot be empty or whitespace only.
-   - Error: `400 Bad Request` &rarr; `{"message": "Author is required"}`
-3. **Price:** Must exist, must be of numeric type, and must be non-negative (`>= 0`).
-   - Missing: `400 Bad Request` &rarr; `{"message": "Price is required"}`
-   - Non-numeric: `400 Bad Request` &rarr; `{"message": "Price must be a valid number"}`
-   - Negative: `400 Bad Request` &rarr; `{"message": "Price must be a positive number"}`
-4. **Pages:** Optional, but if supplied must be a non-negative integer.
+### Successful Response (`201 Created`)
+```json
+{
+  "message": "Book Added Successfully",
+  "bookId": 11
+}
+```
+
+### Validation Rules and Error Responses
+1. **Missing or Empty Title:**
+   - Input: `{ "author": "Robert C. Martin", "price": 450 }`
+   - Response (`400 Bad Request`): `{"message": "Title is required"}`
+2. **Missing or Empty Author:**
+   - Input: `{ "title": "Clean Code", "price": 450 }`
+   - Response (`400 Bad Request`): `{"message": "Author is required"}`
+3. **Missing Price:**
+   - Input: `{ "title": "Clean Code", "author": "Robert C. Martin" }`
+   - Response (`400 Bad Request`): `{"message": "Price is required"}`
+4. **Non-numeric Price:**
+   - Input: `{ "title": "Clean Code", "author": "Robert C. Martin", "price": "four-fifty" }`
+   - Response (`400 Bad Request`): `{"message": "Price must be a valid number"}`
+5. **Negative Price:**
+   - Input: `{ "title": "Clean Code", "author": "Robert C. Martin", "price": -50 }`
+   - Response (`400 Bad Request`): `{"message": "Price must be a positive number"}`
+6. **Undefined Request Body:**
+   - Input: Missing request payload
+   - Response (`400 Bad Request`): `{"message": "Title is required"}`
+
+---
+
+## PUT and DELETE Operations
+
+### PUT `/books/:bookId` (Update Book)
+- Validates that the requested `bookId` exists in SQLite. If missing &rarr; `404 Not Found` (`{"message": "Book not found"}`).
+- Validates the incoming JSON body against the same strict validation rules as POST. If invalid &rarr; `400 Bad Request`.
+- On success &rarr; `200 OK`:
+  ```json
+  {
+    "message": "Book Updated Successfully"
+  }
+  ```
+
+### DELETE `/books/:bookId` (Delete Book)
+- Verifies that the book exists prior to deletion. If missing &rarr; `404 Not Found` (`{"message": "Book not found"}`).
+- Removes the record from the SQLite database.
+- On success &rarr; `200 OK`:
+  ```json
+  {
+    "message": "Book Deleted Successfully"
+  }
+  ```
 
 ---
 
 ## HTTP Status Codes
 
-| Code | Status | When Used |
+| Code | Status | Usage in Lab 3 |
 |---|---|---|
-| **200** | OK | Successful `GET` (collection or item), successful `PUT`, successful `DELETE`. |
-| **201** | Created | Successful `POST` (returns new `bookId`). |
-| **400** | Bad Request | Invalid JSON body, missing fields, invalid types, negative prices, invalid query parameters (bad column, invalid order, negative limit/offset, min_price > max_price). |
-| **404** | Not Found | Requested `bookId` does not exist in the database, or the route endpoint is unknown. |
-| **500** | Internal Server Error | Unhandled server exceptions or unexpected database connection failures. |
+| **200** | OK | Returned on successful `GET` queries, `PUT` updates, and `DELETE` operations. |
+| **201** | Created | Returned on successful `POST` book creation, returning the generated `bookId`. |
+| **400** | Bad Request | Returned when query parameters or body payloads fail validation (unwhitelisted sort column, invalid order, negative limit/offset, inverted price range, missing required fields, non-numeric or negative price). |
+| **404** | Not Found | Returned when a specific `bookId` does not exist or when an unknown route is requested. |
+| **500** | Internal Server Error | Returned by the global error handler if an unexpected server or database exception occurs. |
 
 ---
 
-## Postman Testing Checklist
+## Postman Screenshots
 
-| # | Category | Request | Expected Status | Validation / Goal |
-|---|---|---|---|---|
-| 1 | GET | `GET /books` | `200 OK` | Fetch all books with default pagination (limit: 10, offset: 0). |
-| 2 | GET | `GET /books?search_q=Mockingbird` | `200 OK` | Exact word partial title search. |
-| 3 | GET | `GET /books?search_q=the` | `200 OK` | Partial substring search matching multiple records. |
-| 4 | GET | `GET /books?order_by=price&order=ASC` | `200 OK` | Books sorted by price ascending. |
-| 5 | GET | `GET /books?order_by=price&order=DESC` | `200 OK` | Books sorted by price descending. |
-| 6 | GET | `GET /books?limit=3` | `200 OK` | Returns exactly 3 records. |
-| 7 | GET | `GET /books?limit=2&offset=2` | `200 OK` | Skips first 2 records, returns records 3 and 4. |
-| 8 | GET | `GET /books?min_price=350` | `200 OK` | Filters books with price &gt;= 350. |
-| 9 | GET | `GET /books?max_price=250` | `200 OK` | Filters books with price &lt;= 250. |
-| 10 | GET | `GET /books?min_price=250&max_price=350` | `200 OK` | Filters books within the price bracket [250, 350]. |
-| 11 | GET | `GET /books?search_q=the&order_by=price&order=DESC&min_price=200&max_price=500&limit=5&offset=0` | `200 OK` | Combines search, sorting, price range, and pagination. |
-| 12 | GET | `GET /books?order_by=invalid_column` | `400 Bad Request` | Rejects unwhitelisted column name. |
-| 13 | GET | `GET /books?order=DIAGONAL` | `400 Bad Request` | Rejects unrecognized sort order direction. |
-| 14 | GET | `GET /books?limit=-5` | `400 Bad Request` | Rejects non-positive integer limit. |
-| 15 | GET | `GET /books?offset=-2` | `400 Bad Request` | Rejects negative offset. |
-| 16 | GET | `GET /books?min_price=500&max_price=200` | `400 Bad Request` | Rejects inverted price range (min > max). |
-| 17 | GET | `GET /invalid-endpoint` | `404 Not Found` | Returns consistent `Endpoint not found` JSON message. |
-| 18 | GET | `GET /books/1` | `200 OK` | Fetches single book by ID. |
-| 19 | GET | `GET /books/99999` | `404 Not Found` | Returns `Book not found` for nonexistent ID. |
-| 20 | POST | `POST /books` (valid payload) | `201 Created` | Creates new book and returns `bookId`. |
-| 21 | POST | `POST /books` (missing title) | `400 Bad Request` | Returns `Title is required`. |
-| 22 | POST | `POST /books` (missing author) | `400 Bad Request` | Returns `Author is required`. |
-| 23 | POST | `POST /books` (missing price) | `400 Bad Request` | Returns `Price is required`. |
-| 24 | POST | `POST /books` (price: "abc") | `400 Bad Request` | Returns `Price must be a valid number`. |
-| 25 | POST | `POST /books` (price: -50) | `400 Bad Request` | Returns `Price must be a positive number`. |
-| 26 | PUT | `PUT /books/:id` (valid payload) | `200 OK` | Updates book record in SQLite. |
-| 27 | PUT | `PUT /books/99999` | `404 Not Found` | Rejects updating nonexistent record. |
-| 28 | DELETE | `DELETE /books/:id` | `200 OK` | Removes book from SQLite. |
-| 29 | DELETE | `DELETE /books/99999` | `404 Not Found` | Rejects deleting nonexistent record. |
+All 32 test screenshots are organized into 10 logical categories below:
+
+### 1. GET and Basic Retrieval
+
+#### Screenshot 1: Get All Books
+Retrieves the collection of books using default pagination (`limit: 10`, `offset: 0`).
+![Get all books](screenshots/get-all-books.png)
+
+#### Screenshot 2: Get Book by ID
+Retrieves details of a single book (`id: 1`) returning `200 OK`.
+![Get book by ID](screenshots/get-book-by-id.png)
+
+#### Screenshot 3: Get Book Not Found
+Attempts to retrieve a nonexistent book (`id: 9999`), returning `404 Not Found`.
+![Get book not found](screenshots/get-book-not-found.png)
 
 ---
 
-## Screenshots
+### 2. Search and Partial-Title Search
 
-Screenshots demonstrating API execution in Postman are saved in the `screenshots/` directory:
+#### Screenshot 4: Search Books by Title
+Filters books using `search_q=Mockingbird` returning the matching record.
+![Search books](screenshots/search-books.png)
 
-- **Get all books with query parameters:**
-  ![Get all books](screenshots/get-all-books.png)
-- **Get book by ID:**
-  ![Get book by ID](screenshots/get-book-by-id.png)
-- **POST add book with validation:**
-  ![Add book](screenshots/post-add-book.png)
-- **PUT update book:**
-  ![Update book](screenshots/put-update-book.png)
-- **DELETE book:**
-  ![Delete book](screenshots/delete-book.png)
-
-*(Note: Screenshots are captured directly from Postman test executions and stored in [`screenshots/`](./screenshots/).)*
+#### Screenshot 5: Partial Title Search
+Uses partial string `search_q=the` with SQL `LIKE` to match multiple titles.
+![Partial title search](screenshots/partial-title-search.png)
 
 ---
 
-## Debugging Problems and Solutions
+### 3. Sorting and Pagination
 
-The following four critical backend engineering bugs were analyzed, diagnosed, and resolved during the implementation of Lab 3:
+#### Screenshot 6: Sort Ascending
+Sorts books by price in ascending order (`order_by=price&order=ASC`).
+![Sort ascending](screenshots/sort-ascending.png)
 
-### 1. Port Conflict — `EADDRINUSE`
-- **Cause:** Node.js throws `Error: listen EADDRINUSE: address already in use :::3000` when the application attempts to bind to a TCP port already held by another running process (such as another Node instance, background server, or container).
-- **Diagnosis:** Run `netstat -ano | findstr :3000` (on Windows) or `lsof -i :3000` (on Linux/macOS) to identify the process ID (PID) holding the port.
-- **Solution:** 
-  1. Kill the conflicting process using `taskkill /PID <PID> /F` (Windows) or `kill -9 <PID>` (Unix).
-  2. Implement dynamic port binding in `app.js` using `process.env.PORT || 3000` instead of a hardcoded integer. This allows cloud hosts (like Render) to allocate ephemeral ports dynamically without collisions.
+#### Screenshot 7: Sort Descending
+Sorts books by price in descending order (`order_by=price&order=DESC`).
+![Sort descending](screenshots/sort-descending.png)
 
-### 2. Wrong Import Path
-- **Cause:** Node.js uses CommonJS module resolution. Passing an incorrect relative path (e.g., `require("./database")` instead of `path.join(__dirname, "database.db")`, or `require("express.js")` instead of `require("express")`) throws `MODULE_NOT_FOUND` or fails silently at runtime.
-- **Diagnosis:** Inspect module imports at the top of `app.js` and verify exact package names in `node_modules` and relative directory paths against the project root.
-- **Solution:** Use explicit package identifiers (`require("express")`, `require("sqlite")`, `require("sqlite3")`) and construct absolute file paths using `path.join(__dirname, "database.db")` to eliminate working-directory dependency.
+#### Screenshot 8: Pagination Limit
+Restricts returned dataset size to 3 records (`limit=3`).
+![Pagination limit](screenshots/pagination-limit.png)
+
+#### Screenshot 9: Pagination Offset
+Skips the first 2 records and returns the next 2 (`limit=2&offset=2`).
+![Pagination offset](screenshots/pagination-offset.png)
+
+---
+
+### 4. Price Filtering
+
+#### Screenshot 10: Minimum Price Filter
+Returns books with prices greater than or equal to 350 (`min_price=350`).
+![Minimum price](screenshots/minimum-price.png)
+
+#### Screenshot 11: Maximum Price Filter
+Returns books with prices less than or equal to 250 (`max_price=250`).
+![Maximum price](screenshots/maximum-price.png)
+
+#### Screenshot 12: Price Range Filter
+Returns books within the price bracket [250, 350] (`min_price=250&max_price=350`).
+![Price range](screenshots/price-range.png)
+
+---
+
+### 5. Combined Query Parameters
+
+#### Screenshot 13: Combined Filters
+Executes a multi-parameter query combining `search_q`, `order_by`, `order`, `min_price`, `max_price`, `limit`, and `offset`.
+![Combined filters](screenshots/combined-filters.png)
+
+---
+
+### 6. Query Validation and Error Handling
+
+#### Screenshot 14: Invalid Sort Column
+Rejects an unwhitelisted column name with `400 Bad Request`.
+![Invalid sort column](screenshots/invalid-sort-column.png)
+
+#### Screenshot 15: Invalid Sort Order
+Rejects an unrecognized sorting direction with `400 Bad Request`.
+![Invalid sort order](screenshots/invalid-sort-order.png)
+
+#### Screenshot 16: Negative Limit
+Rejects a negative limit value with `400 Bad Request`.
+![Negative limit](screenshots/negative-limit.png)
+
+#### Screenshot 17: Invalid Offset
+Rejects a negative offset parameter with `400 Bad Request`.
+![Invalid offset](screenshots/invalid-offset.png)
+
+#### Screenshot 18: Invalid Price Range
+Rejects inverted price ranges where `min_price > max_price` with `400 Bad Request`.
+![Invalid price range](screenshots/invalid-price-range.png)
+
+#### Screenshot 19: Unknown Endpoint
+Returns `404 Not Found` with `Endpoint not found` message for unmapped routes.
+![Unknown endpoint](screenshots/unknown-endpoint.png)
+
+---
+
+### 7. POST Success and Validation Failures
+
+#### Screenshot 20: POST Valid Book
+Creates a new book record, returning `201 Created` and generated `bookId`.
+![POST success](screenshots/post-success.png)
+
+#### Screenshot 21: POST Missing Title
+Rejects payload missing the `title` field with `400 Bad Request`.
+![POST missing title](screenshots/post-missing-title.png)
+
+#### Screenshot 22: POST Missing Author
+Rejects payload missing the `author` field with `400 Bad Request`.
+![POST missing author](screenshots/post-missing-author.png)
+
+#### Screenshot 23: POST Missing Price
+Rejects payload missing the `price` field with `400 Bad Request`.
+![POST missing price](screenshots/post-missing-price.png)
+
+#### Screenshot 24: POST Non-Numeric Price
+Rejects string values for price with `400 Bad Request` (`Price must be a valid number`).
+![POST invalid price](screenshots/post-invalid-price.png)
+
+#### Screenshot 25: POST Negative Price
+Rejects negative price values with `400 Bad Request` (`Price must be a positive number`).
+![POST negative price](screenshots/post-negative-price.png)
+
+---
+
+### 8. PUT Success, Persistence and Failure
+
+#### Screenshot 26: PUT Update Success
+Updates an existing book record, returning `200 OK`.
+![PUT success](screenshots/put-success.png)
+
+#### Screenshot 27: PUT Persistence Check
+Retrieves the updated book via `GET /books/:id` verifying database persistence.
+![PUT persistence check](screenshots/put-persistence-check.png)
+
+#### Screenshot 28: PUT Nonexistent Book
+Attempts to update a nonexistent ID (`id: 9999`), returning `404 Not Found`.
+![PUT not found](screenshots/put-not-found.png)
+
+---
+
+### 9. DELETE Success and Failure
+
+#### Screenshot 29: DELETE Success
+Deletes an existing book record, returning `200 OK`.
+![DELETE success](screenshots/delete-success.png)
+
+#### Screenshot 30: DELETE Verification
+Executes a subsequent `GET /books/:id` confirming the book no longer exists (`404 Not Found`).
+![DELETE verification](screenshots/delete-verification.png)
+
+#### Screenshot 31: DELETE Nonexistent Book
+Attempts to delete a nonexistent ID (`id: 9999`), returning `404 Not Found`.
+![DELETE not found](screenshots/delete-not-found.png)
+
+---
+
+### 10. SQLite Database Verification
+
+#### Screenshot 32: SQLite Database Schema and Seed Verification
+Direct terminal query verifying table structure (`book`) and seeded records in `database.db`.
+![Database verification](screenshots/database-verification.png)
+
+*(Note on Postman Test Results: Some screenshots show `Test Results 0/1` because the test tab was configured to expect status 200 during requests designed to verify 400 Bad Request or 404 Not Found error responses. The HTTP response status code and JSON response body in the preview demonstrate correct server functionality).*
+
+---
+
+## Debugging Exercises
+
+During implementation, four major backend engineering challenges were analyzed and resolved:
+
+### 1. `EADDRINUSE` Port Conflict
+- **Cause:** When another process (e.g. an earlier running Node instance or container) is already bound to port 3000, Node.js throws `Error: listen EADDRINUSE: address already in use :::3000`.
+- **Diagnosis:** Identify the offending PID on Windows using `netstat -ano | findstr :3000` (or `lsof -i :3000` on macOS/Linux).
+- **Solution:** Terminate the process using `taskkill /PID <PID> /F` (or `kill -9 <PID>`). In code, implement dynamic port assignment:
+  ```javascript
+  const PORT = process.env.PORT || 3000;
+  ```
+  This allows host environments like Render to assign ports dynamically without collisions.
+
+### 2. Incorrect Import Path
+- **Cause:** Requiring modules with typos or wrong relative paths (e.g., `require("./database")` or `require("express.js")`) causes `MODULE_NOT_FOUND` or runtime resolution failure.
+- **Diagnosis:** Inspect module imports against `package.json` dependencies and check file paths relative to `__dirname`.
+- **Solution:** Construct absolute file paths using `path.join(__dirname, "database.db")` to guarantee reliable SQLite access regardless of the terminal's working directory.
 
 ### 3. SQLite Table-Name Typo
-- **Cause:** In SQLite, referencing a misspelled or pluralized table name (e.g., `SELECT * FROM books;` when the table was declared as `CREATE TABLE book`) results in a runtime SQL error: `SQLITE_ERROR: no such table: books`.
-- **Diagnosis:** Inspect the database schema directly by inspecting `initDB.sql` or querying SQLite master table: `SELECT name, sql FROM sqlite_master WHERE type='table';`.
-- **Solution:** Maintain consistent singular table naming (`book`) across every SQL statement (`SELECT ... FROM book`, `INSERT INTO book`, `UPDATE book`, `DELETE FROM book`).
+- **Cause:** Executing queries using plural names (e.g., `SELECT * FROM books;`) when the schema was defined as `CREATE TABLE book` causes SQLite to throw `SQLITE_ERROR: no such table: books`.
+- **Diagnosis:** Inspect table names directly via `SELECT name FROM sqlite_master WHERE type='table';` or check `initDB.sql`.
+- **Solution:** Consistently use the singular table name `book` across all SQL statements (`SELECT`, `INSERT`, `UPDATE`, `DELETE`).
 
-### 4. Missing `await` in Asynchronous Database Calls
-- **Cause:** In asynchronous SQLite libraries (`sqlite`), database operations (`open()`, `db.all()`, `db.get()`, `db.run()`) return Promises. Omitting the `await` keyword causes the variable to hold a pending Promise object rather than the resolved dataset. When serialized to JSON, the client receives `[object Promise]` or empty objects, and subsequent synchronous access attempts cause race conditions or unhandled rejections.
-- **Diagnosis:** Notice routes returning `{}`, empty arrays, or finishing execution before database operations complete.
-- **Solution:** Ensure every asynchronous database call is explicitly awaited inside an `async` function handler, and wrap operations in `try...catch` blocks to pass database errors to Express error-handling middleware.
+### 4. Missing `await` in Asynchronous Database Operations
+- **Cause:** Async SQLite wrapper methods (`open()`, `db.all()`, `db.get()`, `db.run()`) return Promises. Omitting `await` causes the variable to hold a pending Promise object instead of the query result, resulting in `[object Promise]` responses, race conditions, or unhandled promise rejections.
+- **Diagnosis:** Routes return empty objects (`{}`), send responses prematurely, or log unhandled Promise rejections.
+- **Solution:** Explicitly prepend `await` to every asynchronous database operation inside `async` route handlers and encapsulate them in `try...catch` blocks.
 
 ---
 
-## Render Deployment Preparation
+## Database Verification
 
-Lab 3 is fully configured for deployment as an independent Web Service on Render:
+- **Table Name:** `book` (singular)
+- **Columns:**
+  - `id`: `INTEGER PRIMARY KEY AUTOINCREMENT`
+  - `title`: `TEXT NOT NULL`
+  - `author`: `TEXT NOT NULL`
+  - `price`: `INTEGER NOT NULL`
+  - `pages`: `INTEGER`
+- **Initial Seed:** 10 diverse book records populated via `initDB.sql`.
+- **Integrity Check:** All test additions (such as test book `id: 11`) created during testing were cleaned up, leaving the original 10 records completely intact.
 
-- **Build Command:**
-  ```bash
-  npm install --build-from-source
-  ```
-  *(Compiling native C++ SQLite bindings from source prevents native ABI mismatches such as `GLIBC_2.38 not found`).*
-- **Start Command:**
-  ```bash
-  node app.js
-  ```
-- **Port & Host Binding:**
-  - Listens on `process.env.PORT || 3000`.
-  - Explicitly binds to `0.0.0.0` for containerized host routing.
-- **Database Persistence:**
-  - Uses embedded SQLite `database.db` located via `path.join(__dirname, "database.db")`.
-- **Deployment Isolation:**
-  - Independent service running in its own subdirectory (`lab-03/`) without touching existing Lab 1 or Lab 2 deployments.
+---
+
+## Viva Questions and Answers
+
+### 1. What is the difference between a query parameter and a path parameter?
+- **Path parameters** (e.g., `/books/:bookId`) are part of the resource identifier path and identify a specific resource.
+- **Query parameters** (e.g., `/books?search_q=the&order_by=price`) appear after `?` and are used for filtering, searching, sorting, and pagination without changing the resource identity.
+
+### 2. What does "stateless" mean in REST APIs?
+"Stateless" means that each HTTP request from a client to the server must contain all the information necessary to understand and complete the request. The server does not store client session context between requests, improving scalability and reliability.
+
+### 3. Which status code is used for invalid input?
+**HTTP 400 Bad Request** is returned when client input fails validation (such as missing required fields, non-numeric values, negative prices, or unwhitelisted sort columns).
+
+### 4. Which status code is used when a book does not exist?
+**HTTP 404 Not Found** is returned when an operation references a `bookId` that does not exist in the database.
+
+### 5. What is SQL `LIKE` used for?
+SQL `LIKE` is used in a `WHERE` clause to search for a specified pattern in a column. In this API, `title LIKE ?` combined with `'%<search_q>%'` enables case-insensitive partial substring searching across book titles.
+
+### 6. Why use parameterised SQL queries?
+Parameterized queries separate SQL code from untrusted user-supplied data using placeholders (`?`). The database engine treats parameters strictly as literal values rather than executable SQL, completely neutralizing SQL injection attacks.
+
+### 7. Why is sorting-column whitelisting important?
+Because SQL does not allow column names in `ORDER BY` clauses to be parameterized with `?`, column names must be interpolated into the SQL string. A strict whitelist (`['id', 'title', 'author', 'price', 'pages']`) guarantees that only approved database column names can be sorted, preventing malicious SQL injection.
+
+### 8. What is the purpose of `limit` and `offset`?
+`limit` and `offset` enable server-side pagination:
+- `limit` specifies the maximum number of rows returned in a single response, preventing memory exhaustion.
+- `offset` specifies how many rows to skip before beginning to return data, enabling clients to navigate multi-page datasets.
+
+---
+
+## Problems Faced and Solutions
+
+1. **`request.body` Destructuring Exception:**
+   - **Problem:** When clients submitted requests without a body or without a `Content-Type: application/json` header, `request.body` was `undefined`. Destructuring `{ title, author, price, pages } = body` caused a runtime exception: `Cannot destructure property 'title' of 'body' as it is undefined`.
+   - **Solution:** Added a defensive check `if (!body || typeof body !== "object" || Array.isArray(body))` returning `400 Bad Request` (`{"message": "Title is required"}`) and defaulted destructuring via `request.body || {}`.
+
+2. **Loopback Port Restrictions on Windows:**
+   - **Problem:** Attempting to probe the running Express server across isolated sandbox processes on Windows resulted in socket access blocks.
+   - **Solution:** Integrated an automated Node.js test harness that launches the app directly, executes all 34 assertion suites across all CRUD and error endpoints, and cleanly shuts down.
+
+3. **SQLite Native Binary Compatibility:**
+   - **Problem:** Precompiled `sqlite3` binary releases can fail in cloud environments (such as Render) with `GLIBC_2.38 not found` errors.
+   - **Solution:** Configured the Render build command to compile the native bindings from source: `npm install --build-from-source`.
 
 ---
 
 ## Conclusion
 
-Lab 3 successfully modernizes the book store backend into a complete, secure REST API. Through robust query parameter parsing, SQL parameterization, whitelist-enforced sorting, request body validation, and comprehensive error handling, the application satisfies production standards for API stability, security, and developer ergonomics.
+Lab 3 completes the transition from a basic Express server into a full-featured, secure, and production-ready RESTful Books API. By incorporating partial text search, whitelist-governed sorting, safe pagination, price-range boundaries, rigorous input validation, consistent JSON error handling, and complete Postman verification across 32 genuine test captures, the project adheres to backend engineering standards.

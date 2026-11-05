@@ -4,3 +4,5 @@ node_modules/
 **/.env
 config/api_keys.json
 **/config/api_keys.json
+.git-lab-report-2-backup/
+**/.git-lab-report-2-backup/

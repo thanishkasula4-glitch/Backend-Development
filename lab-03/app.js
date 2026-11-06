@@ -44,6 +44,7 @@ const initializeDBAndServer = async (customPort) => {
     // Dynamic port binding for production (Render) and local fallback
     const PORT = customPort || process.env.PORT || 3000;
     const server = app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is running on port ${PORT}`);
       console.log(`Server is running at http://localhost:${PORT}/`);
     });
     return server;

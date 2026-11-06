@@ -43,6 +43,7 @@ The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD ap
 - **Development Tool:** Nodemon (`nodemon` v3)
 - **API Testing & Verification:** Postman & Node.js Automated Test Suite
 - **Version Control:** Git & GitHub
+- **Containerization & Cloud Deployment:** Docker (`node:24-trixie-slim`) & Render Web Services
 
 ---
 
@@ -50,6 +51,8 @@ The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD ap
 
 ```text
 lab-03/
+├── Dockerfile           # Multi-platform Docker configuration (Debian Trixie) resolving GLIBC issues
+├── .dockerignore        # Exclusions for Docker image builds (node_modules, screenshots, git)
 ├── app.js               # Express application with REST routes, query filters, and validation
 ├── database.db          # Embedded SQLite database storing the books dataset
 ├── initDB.sql           # Schema definition and initial seeded book records
@@ -563,9 +566,14 @@ Because SQL does not allow column names in `ORDER BY` clauses to be parameterize
    - **Problem:** Attempting to probe the running Express server across isolated sandbox processes on Windows resulted in socket access blocks.
    - **Solution:** Integrated an automated Node.js test harness that launches the app directly, executes all 34 assertion suites across all CRUD and error endpoints, and cleanly shuts down.
 
-3. **SQLite Native Binary Compatibility:**
-   - **Problem:** Precompiled `sqlite3` binary releases can fail in cloud environments (such as Render) with `GLIBC_2.38 not found` errors.
-   - **Solution:** Configured the Render build command to compile the native bindings from source: `npm install --build-from-source`.
+3. **SQLite Native Binary Compatibility (GLIBC_2.38 Fix):**
+   - **Problem:** When deploying to Render's native Node.js runtime, `sqlite3@6.0.1` threw `Error: /lib/x86_64-linux-gnu/libm.so.6: version GLIBC_2.38 not found` because its precompiled binary targeted GLIBC 2.38+, which is newer than Render's Ubuntu 22.04 runtime (GLIBC 2.35).
+   - **Solution:** Pinned `sqlite3` to exact version `5.1.7` (`"sqlite3": "5.1.7"` in `package.json` and updated `package-lock.json`). Precompiled binaries for `sqlite3@5.1.7` target GLIBC 2.28/2.31, making them natively compatible with Render without requiring complex source compilation or Docker containers.
+   - **Render Native Configuration:**
+     - **Root Directory:** `lab-03`
+     - **Build Command:** `npm ci`
+     - **Start Command:** `npm start`
+   - *(Note: A multi-platform Docker configuration is also maintained in `Dockerfile` and `.dockerignore` as an optional fallback).*
 
 ---
 

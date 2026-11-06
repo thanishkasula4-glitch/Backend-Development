@@ -64,6 +64,26 @@ if (require.main === module) {
 // ============================================================================
 
 /**
+ * 0. GET /
+ * Root welcome route displaying API overview and available endpoints
+ */
+app.get("/", (request, response) => {
+  response.status(200).json({
+    message: "Welcome to the Books REST API – Lab 03",
+    student: "Kasula Thanish (252U1R9063)",
+    section: "CSE-GEN-AI-2A",
+    endpoints: {
+      "GET /": "This welcome message",
+      "GET /books": "List all books (supports search, sort, filter, pagination)",
+      "GET /books/:bookId": "Get a single book by ID",
+      "POST /books": "Create a new book",
+      "PUT /books/:bookId": "Update an existing book",
+      "DELETE /books/:bookId": "Delete a book"
+    }
+  });
+});
+
+/**
  * 1. GET /books
  * Collection endpoint supporting:
  *  - search_q: Partial title search using SQL LIKE

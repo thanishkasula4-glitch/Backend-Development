@@ -46,6 +46,7 @@ A full RESTful API implementation performing complete CRUD (Create, Read, Update
 An upgraded REST API featuring partial title search (`search_q`), whitelist-enforced sorting (`order_by`, `order`), safe pagination (`limit`, `offset`), price-range filtering (`min_price`, `max_price`), strict POST/PUT payload validation, standard HTTP status codes, and thorough debugging documentation.
 
 - **Directory:** [`lab-03/`](./lab-03/)
+- **Live Deployment URL:** [https://backend-development-1-2rxg.onrender.com/](https://backend-development-1-2rxg.onrender.com/)
 - **Key Files:** `app.js`, `database.db`, `initDB.sql`, `package.json`, `README.md`
 - **Screenshots:** [`lab-03/screenshots/`](./lab-03/screenshots/)
   - Postman verification captures for search, sorting, pagination, filtering, validation, and error states.

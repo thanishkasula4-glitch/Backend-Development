@@ -12,10 +12,48 @@
 
 ## Live Deployment
 
-- **Deployment Status:** Not deployed yet.
-- **Local Testing URL:** `http://localhost:3000`
-- **Deployment Platform:** Render (Web Service prepared)
-- **Deployment Notes:** Lab 3 is completely configured for cloud deployment as an isolated service. Local testing has been fully verified using Postman and an automated Node.js test harness.
+- **Deployment Status:** Active & Deployed Live
+- **Live Base URL:** [https://backend-development-1-2rxg.onrender.com/](https://backend-development-1-2rxg.onrender.com/)
+- **Live Endpoints:**
+  - **Homepage (Welcome & Index):** `GET` [https://backend-development-1-2rxg.onrender.com/](https://backend-development-1-2rxg.onrender.com/)
+  - **Books Collection:** `GET` [https://backend-development-1-2rxg.onrender.com/books](https://backend-development-1-2rxg.onrender.com/books)
+  - **Single Book Record:** `GET` [https://backend-development-1-2rxg.onrender.com/books/1](https://backend-development-1-2rxg.onrender.com/books/1)
+- **Hosting Platform:** Render (Web Service)
+- **Deployment Runtime:** Native Node.js Runtime
+- **Render Configuration:**
+  - **Root Directory:** `lab-03`
+  - **Build Command:** `npm ci`
+  - **Start Command:** `npm start`
+
+---
+
+## API Homepage (`GET /`)
+
+A dedicated root route provides a welcome message, student metadata, and an interactive index of all available endpoints in the Books REST API:
+
+- **Method:** `GET`
+- **Path:** `/`
+- **Response Status:** `200 OK`
+- **Response Payload:**
+```json
+{
+  "message": "Welcome to the Books REST API – Lab 03",
+  "student": "Kasula Thanish (252U1R9063)",
+  "section": "CSE-GEN-AI-2A",
+  "endpoints": {
+    "GET /": "This welcome message",
+    "GET /books": "List all books (supports search, sort, filter, pagination)",
+    "GET /books/:bookId": "Get a single book by ID",
+    "POST /books": "Create a new book",
+    "PUT /books/:bookId": "Update an existing book",
+    "DELETE /books/:bookId": "Delete a book"
+  }
+}
+```
+
+> **Verification Placeholder:**
+> Reserved location for Postman verification screenshot of the live homepage (`homepage.png`):
+> `![API Homepage](screenshots/homepage.png)` *(To be captured and added following deployment verification).*
 
 ---
 
@@ -38,12 +76,12 @@ The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD ap
 
 - **Runtime Environment:** Node.js (v18+)
 - **Server Framework:** Express.js (`express` v5)
-- **Database Engine:** SQLite3 (`sqlite3` v6)
+- **Database Engine:** SQLite3 (`sqlite3` v5.1.7 - pinned for universal Linux/Render GLIBC compatibility)
 - **Database Promise Wrapper:** SQLite (`sqlite` v5)
 - **Development Tool:** Nodemon (`nodemon` v3)
 - **API Testing & Verification:** Postman & Node.js Automated Test Suite
 - **Version Control:** Git & GitHub
-- **Containerization & Cloud Deployment:** Docker (`node:24-trixie-slim`) & Render Web Services
+- **Cloud Deployment:** Render (Native Node.js Web Service)
 
 ---
 
@@ -51,8 +89,6 @@ The objective of Lab 3 is to elevate the foundational SQLite and Express CRUD ap
 
 ```text
 lab-03/
-├── Dockerfile           # Multi-platform Docker configuration (Debian Trixie) resolving GLIBC issues
-├── .dockerignore        # Exclusions for Docker image builds (node_modules, screenshots, git)
 ├── app.js               # Express application with REST routes, query filters, and validation
 ├── database.db          # Embedded SQLite database storing the books dataset
 ├── initDB.sql           # Schema definition and initial seeded book records
@@ -154,6 +190,7 @@ All endpoints use resource-oriented naming (`/books`) with HTTP methods represen
 
 | Method | Endpoint | Description | Status Codes |
 |---|---|---|---|
+| `GET` | `/` | API Homepage welcome message and endpoint directory | `200 OK` |
 | `GET` | `/books` | Retrieve books collection with search, sort, filter, and pagination | `200 OK`, `400 Bad Request` |
 | `GET` | `/books/:bookId` | Retrieve a single book record by ID | `200 OK`, `404 Not Found` |
 | `POST` | `/books` | Create a new book record | `201 Created`, `400 Bad Request` |
